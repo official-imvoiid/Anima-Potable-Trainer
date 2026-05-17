@@ -1,0 +1,7 @@
+# Anima Standalone Trainer — Global Configuration
+# Set the paths to your Anima model files below.
+
+[model_paths]
+dit_path = ""
+qwen3_path = ""
+vae_path = ""

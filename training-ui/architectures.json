@@ -1,0 +1,43 @@
+{
+  "architectures": {
+    "anima": {
+      "display_name": "Anima",
+      "network_modules": ["networks.lora_anima"],
+      "scripts": {
+        "train": "anima_train.py",
+        "train_network": "anima_train_network.py",
+        "generate": "anima_gen.py"
+      },
+      "global_paths": {
+        "dit_path": {
+          "label": "DiT Model Path",
+          "placeholder": "C:\\Anima\\split_files\\diffusion_models\\anima-base-v1.0.safetensors",
+          "cli_flag": "dit_path"
+        },
+        "qwen3_path": {
+          "label": "Qwen3 Text Encoder Path",
+          "placeholder": "C:\\Anima\\split_files\\text_encoders\\qwen_3_06b_base.safetensors",
+          "cli_flag": "qwen3_path"
+        },
+        "vae_path": {
+          "label": "VAE Path",
+          "placeholder": "C:\\Anima\\split_files\\vae\\qwen_image_vae.safetensors",
+          "cli_flag": "vae_path"
+        }
+      },
+      "gen_params": {
+        "flow_shift": {
+          "label": "Flow Shift",
+          "type": "number",
+          "default": 3.0,
+          "step": 0.5,
+          "cli_flag": "discrete_flow_shift"
+        }
+      },
+      "training_section": "anima_arguments",
+      "all_in_one": false,
+      "fsdp_transformer_cls": "Block"
+    }
+  },
+  "default_architecture": "anima"
+}

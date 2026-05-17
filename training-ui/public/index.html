@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anima Trainer</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c3aed'/><circle cx='50' cy='50' r='25' fill='none' stroke='white' stroke-width='10'/><circle cx='50' cy='50' r='10' fill='white'/></svg>" />
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>
+                <div class="logo-wrapper">
+                    <i data-lucide="orbit" class="logo-icon-svg"></i>
+                </div>
+                <span class="logo-text-static">ANIMA TRAINER</span>
+            </h1>
+            <button id="btn-new-job" class="btn btn-primary btn-block btn-glow">
+                <i data-lucide="plus"></i> New Job
+            </button>
+        </div>
+        <div id="job-list" class="job-list"></div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+        <div id="empty-state" class="empty-state">
+            <div class="empty-icon-wrapper">
+                <i data-lucide="cpu" class="empty-icon"></i>
+            </div>
+            <h2>No Job Selected</h2>
+            <p>Create a new training job or select one from the sidebar</p>
+        </div>
+
+        <!-- Job Editor -->
+        <div id="job-editor" class="job-editor hidden">
+            <header class="editor-header">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <h2 id="job-title">Job Name</h2>
+                    <span id="job-badge" class="badge badge-lora">LoRA</span>
+                </div>
+                <div class="editor-actions">
+                    <button id="btn-save" class="btn btn-success hidden"><i data-lucide="save"></i> Save</button>
+                    <button id="btn-discard" class="btn btn-ghost hidden"><i data-lucide="x"></i> Discard</button>
+                    <button id="btn-clone" class="btn btn-ghost"><i data-lucide="copy"></i> Clone</button>
+                    <button id="btn-run" class="btn btn-primary btn-glow"><i data-lucide="play"></i> Train</button>
+                    <button id="btn-stop" class="btn btn-danger hidden"><i data-lucide="square"></i> Stop</button>
+                    <button id="btn-delete" class="btn btn-danger btn-icon" title="Delete"><i data-lucide="trash-2"></i></button>
+                </div>
+            </header>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="training"><i data-lucide="sliders"></i> Training</button>
+                <button class="tab" data-tab="dataset"><i data-lucide="database"></i> Dataset</button>
+                <button class="tab" data-tab="network"><i data-lucide="network"></i> Network</button>
+                <button class="tab" data-tab="gpu"><i data-lucide="cpu"></i> GPU</button>
+                <button class="tab" data-tab="prompts"><i data-lucide="sparkles"></i> Prompts</button>
+                <button class="tab" data-tab="samples"><i data-lucide="image"></i> Samples</button>
+                <button class="tab" data-tab="console"><i data-lucide="terminal"></i> Console</button>
+                <button class="tab" data-tab="tensorboard"><i data-lucide="bar-chart-2"></i> TensorBoard</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- ═══ Training Tab ═══ -->
+                <div id="tab-training" class="tab-pane active">
+                    <div class="section-card card-glow" style="border-color: var(--accent);">
+                        <h3><span class="icon"><i data-lucide="hard-drive"></i></span> Anima Model Paths</h3>
+                        <p class="text-dim mb-16" style="font-size: 0.8rem; margin-top: -10px;">These paths are globally shared. Updating them here updates them everywhere.</p>
+                        <div class="form-group">
+                            <label>DiT Model Path</label>
+                            <input type="text" id="cfg-dit-path" placeholder="C:\Anima\split_files\diffusion_models\anima-base-v1.0.safetensors">
+                        </div>
+                        <div class="form-group">
+                            <label>Qwen3 Text Encoder Path</label>
+                            <input type="text" id="cfg-qwen3-path" placeholder="C:\Anima\split_files\text_encoders\qwen_3_06b_base.safetensors">
+                        </div>
+                        <div class="form-group">
+                            <label>VAE Path</label>
+                            <input type="text" id="cfg-vae-path" placeholder="C:\Anima\split_files\vae\qwen_image_vae.safetensors">
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="zap"></i></span> Optimization</h3>
+                        <div class="form-row">
+                            <div class="form-group"><label>Learning Rate</label><input type="text" id="cfg-lr" value="2e-5" placeholder="2e-5"></div>
+                            <div class="form-group"><label>Text Encoder LR</label><input type="text" id="cfg-te-lr" value="0" placeholder="0"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Optimizer</label>
+                                <select id="cfg-optimizer">
+                                    <option value="AdamW" selected>AdamW</option>
+                                    <option value="AdamW8bit">AdamW8bit</option>
+                                    <option value="PagedAdamW8bit">PagedAdamW8bit</option><option value="Adafactor">Adafactor</option>
+                                    <option value="Prodigy">Prodigy</option><option value="Lion8bit">Lion8bit</option>
+                                    <option value="AdamWScheduleFree">AdamWScheduleFree</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>LR Scheduler</label>
+                                <select id="cfg-lr-scheduler">
+                                    <option value="cosine">Cosine</option><option value="constant">Constant</option>
+                                    <option value="linear">Linear</option><option value="cosine_with_restarts">Cosine w/ Restarts</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>LR Warmup Steps</label><input type="number" id="cfg-lr-warmup" value="0" min="0"></div>
+                            <div class="form-group"><label>Weight Decay</label><input type="number" id="cfg-weight-decay" value="0.01" step="0.01" min="0"></div>
+                            <div class="form-group"><label>Seed</label><input type="number" id="cfg-seed" value="42"></div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="calendar"></i></span> Schedule</h3>
+                        <div class="form-group">
+                            <label>Duration Unit</label>
+                            <div style="display:flex;gap:16px;">
+                                <label class="checkbox-label"><input type="radio" name="duration-unit" value="epochs" checked> Epochs</label>
+                                <label class="checkbox-label"><input type="radio" name="duration-unit" value="steps"> Steps</label>
+                            </div>
+                        </div>
+                        <div id="schedule-epochs">
+                            <div class="form-row">
+                                <div class="form-group"><label>Max Epochs</label><input type="number" id="cfg-max-epochs" value="20" min="1"></div>
+                                <div class="form-group"><label>Save Every N Epochs</label><input type="number" id="cfg-save-every" value="1" min="1"></div>
+                            </div>
+                        </div>
+                        <div id="schedule-steps" class="hidden">
+                            <div class="form-row">
+                                <div class="form-group"><label>Max Steps</label><input type="number" id="cfg-max-steps" value="1000" min="1"></div>
+                                <div class="form-group"><label>Save Every N Steps</label><input type="number" id="cfg-save-every-steps" value="500" min="1"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Output Name</label><input type="text" id="cfg-output-name" value="my_anima_lora"></div>
+                            <div class="form-group"><label>Save Format</label>
+                                <select id="cfg-save-format"><option value="safetensors">Safetensors</option><option value="ckpt">Checkpoint</option></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="rocket"></i></span> Performance</h3>
+                        <div class="form-row">
+                            <div class="form-group"><label>Mixed Precision</label>
+                                <select id="cfg-mixed-precision"><option value="bf16">BFloat16</option><option value="fp16">Float16</option><option value="no">Float32</option></select>
+                            </div>
+                            <div class="form-group"><label>Save Precision</label>
+                                <select id="cfg-save-precision"><option value="bf16">BFloat16</option><option value="fp16">Float16</option><option value="float">Float32</option></select>
+                            </div>
+                            <div class="form-group"><label>DataLoader Workers</label><input type="number" id="cfg-workers" value="4" min="0" max="16"></div>
+                        </div>
+                        <label class="checkbox-label"><input type="checkbox" id="cfg-gradient-checkpointing" checked> Gradient Checkpointing</label>
+                        <small class="text-dim" style="display: block; margin-top: 4px; margin-bottom: 12px;">Trades compute for VRAM savings. Recommended on.</small>
+                        <label class="checkbox-label mt-8"><input type="checkbox" id="cfg-flash-attn"> Flash Attention</label>
+                        <label class="checkbox-label mt-8"><input type="checkbox" id="cfg-lowram"> Low RAM Mode</label>
+                        <div class="form-row mt-8">
+                            <div class="form-group"><label>Blocks to Swap</label><input type="number" id="cfg-blocks-to-swap" value="0" min="0" max="26"><small>Moves DiT blocks to RAM. 0=Off. Saves VRAM.</small></div>
+                            <div class="form-group"><label>Activation Offload</label>
+                                <select id="cfg-activation-offload"><option value="none">None</option><option value="cpu">CPU Offload</option><option value="unsloth">Unsloth (async, faster)</option></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="save"></i></span> Caching</h3>
+                        <label class="checkbox-label"><input type="checkbox" id="cfg-cache-latents" checked> Cache Latents to Disk</label>
+                        <label class="checkbox-label mt-8"><input type="checkbox" id="cfg-cache-te" checked> Cache Text Encoder Outputs to Disk</label>
+                        <div class="form-row mt-8">
+                            <div class="form-group"><label>Timestep Method</label>
+                                <select id="cfg-timestep-method"><option value="logit_normal">Logit Normal</option><option value="uniform">Uniform</option></select>
+                            </div>
+                            <div class="form-group"><label>Flow Shift</label><input type="number" id="cfg-flow-shift" value="3.0" step="0.1" min="0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Dataset Tab ═══ -->
+                <div id="tab-dataset" class="tab-pane">
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="image"></i></span> Dataset Settings</h3>
+                        <div class="form-row">
+                            <div class="form-group"><label>Resolution</label><input type="text" id="cfg-resolution" value="1024" placeholder="1024"><small>Max resolution for bucketing.</small></div>
+                            <div class="form-group"><label>Batch Size</label><input type="number" id="cfg-batch-size" value="1" min="1"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Gradient Accumulation</label><input type="number" id="cfg-grad-acc" value="1" min="1"></div>
+                            <div class="form-group"><label>Caption Extension</label><input type="text" id="cfg-caption-ext" value=".txt"></div>
+                        </div>
+                        <label class="checkbox-label"><input type="checkbox" id="cfg-alpha-mask"> Alpha Mask Loss</label>
+                    </div>
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="layers"></i></span> Bucketing</h3>
+                        <label class="checkbox-label"><input type="checkbox" id="cfg-enable-bucket" checked> Enable Aspect Ratio Bucketing</label>
+                        <label class="checkbox-label mt-8"><input type="checkbox" id="cfg-bucket-no-upscale" checked> Do Not Upscale</label>
+                        <div class="form-row mt-8">
+                            <div class="form-group"><label>Min Bucket Reso</label><input type="number" id="cfg-min-bucket" value="512" min="64" step="64"></div>
+                            <div class="form-group"><label>Max Bucket Reso</label><input type="number" id="cfg-max-bucket" value="1536" min="256" step="64"></div>
+                            <div class="form-group"><label>Bucket Steps</label><input type="number" id="cfg-bucket-steps" value="64" min="8" step="8"></div>
+                        </div>
+                    </div>
+                    <div class="section-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h3><span class="icon"><i data-lucide="folder-open"></i></span> Dataset Folders</h3>
+                            <button id="btn-add-dataset" class="btn btn-primary btn-sm"><i data-lucide="folder-plus"></i> Add Folder</button>
+                        </div>
+                        <div id="dataset-subsets-list"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ Network Tab ═══ -->
+                <div id="tab-network" class="tab-pane">
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="brain"></i></span> Training Type</h3>
+                        <div class="form-group">
+                            <select id="cfg-training-type">
+                                <option value="lora">LoRA (Lightweight Adapter)</option>
+                                <option value="full_finetune">Full Fine-Tune (Entire Model)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="lora-section">
+                        <div class="section-card">
+                            <h3><span class="icon"><i data-lucide="link"></i></span> LoRA Configuration</h3>
+                            <div class="form-row">
+                                <div class="form-group"><label>Network Dim (Rank)</label><input type="number" id="cfg-network-dim" value="32" min="1"><small>Higher = more capacity, more VRAM.</small></div>
+                                <div class="form-group"><label>Network Alpha</label><input type="number" id="cfg-network-alpha" value="32" min="1"><small>Scaling factor. Usually same as dim.</small></div>
+                            </div>
+                            <label class="checkbox-label"><input type="checkbox" id="cfg-unet-only" checked> Train DiT Only (freeze text encoder)</label>
+                            <div class="form-group mt-8"><label>Network Dropout</label><input type="number" id="cfg-network-dropout" value="0" step="0.05" min="0" max="1"><small>0 = off. Helps prevent overfitting.</small></div>
+                            <div class="form-group"><label>Network Args</label><input type="text" id="cfg-network-args" placeholder="conv_dim=4 conv_alpha=4"><small>Extra key=value pairs for the network module.</small></div>
+                            <div class="form-group"><label>Network Weights (resume LoRA)</label><input type="text" id="cfg-network-weights" placeholder="C:\path\to\lora.safetensors"><small>Initialize from existing LoRA checkpoint.</small></div>
+                        </div>
+                    </div>
+                    <div id="fft-section" class="hidden">
+                        <div class="section-card">
+                            <h3><span class="icon"><i data-lucide="flame"></i></span> Full Fine-Tune Options</h3>
+                            <label class="checkbox-label"><input type="checkbox" id="cfg-freeze-llm-adapter" checked> Freeze LLM Adapter</label>
+                            <small class="text-dim">Recommended. The adapter is pre-trained and retraining risks degrading text understanding.</small>
+                        </div>
+                    </div>
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="history"></i></span> Resume Training</h3>
+                        <label class="checkbox-label"><input type="checkbox" id="cfg-auto-resume"> Auto-resume from last saved state</label>
+                        <div class="form-group mt-8"><label>Resume State Folder</label><input type="text" id="cfg-resume" placeholder="C:\path\to\saved_state"><small>Leave blank when auto-resume is enabled.</small></div>
+                    </div>
+                </div>
+
+                <!-- ═══ GPU Tab ═══ -->
+                <div id="tab-gpu" class="tab-pane">
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="monitor"></i></span> GPU Selection</h3>
+                        <div id="cfg-gpu-selection" class="gpu-grid"><small class="text-muted"><i data-lucide="loader" class="spin"></i> Loading GPUs...</small></div>
+                    </div>
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="server"></i></span> Multi-GPU Mode</h3>
+                        <div class="form-group">
+                            <select id="cfg-multigpu-mode">
+                                <option value="ddp">DDP — Data Parallel (standard)</option>
+                                <option value="fsdp">FSDP — Fully Sharded (low VRAM)</option>
+                                <option value="deepspeed">DeepSpeed — ZeRO Sharding</option>
+                            </select>
+                            <small>DDP is fastest. FSDP/DeepSpeed reduce VRAM by sharding the model across GPUs.</small>
+                        </div>
+                        <div id="fsdp-opts" class="hidden mt-16">
+                            <div class="form-row">
+                                <div class="form-group"><label>Sharding Strategy</label>
+                                    <select id="cfg-fsdp-sharding"><option value="1">FULL_SHARD</option><option value="2">SHARD_GRAD_OP</option><option value="3">NO_SHARD</option></select>
+                                </div>
+                            </div>
+                            <label class="checkbox-label"><input type="checkbox" id="cfg-fsdp-offload"> CPU Offloading</label>
+                            <label class="checkbox-label mt-8"><input type="checkbox" id="cfg-fsdp-activation-ckpt"> FSDP Activation Checkpointing</label>
+                            <label class="checkbox-label mt-8"><input type="checkbox" id="cfg-fsdp-cpu-efficient"> CPU RAM Efficient Loading</label>
+                        </div>
+                        <div id="deepspeed-opts" class="hidden mt-16">
+                            <div class="form-group"><label>ZeRO Stage</label>
+                                <select id="cfg-zero-stage"><option value="2">Stage 2</option><option value="3">Stage 3</option></select>
+                            </div>
+                            <div class="form-group"><label>Offload Optimizer</label>
+                                <select id="cfg-ds-offload-opt"><option value="">None</option><option value="cpu">CPU</option></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Prompts Tab ═══ -->
+                <div id="tab-prompts" class="tab-pane">
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="palette"></i></span> In-Training Sampling</h3>
+                        <label class="checkbox-label"><input type="checkbox" id="cfg-enable-sampling" checked> Enable Sampling During Training</label>
+                        <div class="form-row mt-8" id="sample-interval-row">
+                            <div class="form-group" id="sample-epochs-group"><label>Sample Every N Epochs</label><input type="number" id="cfg-sample-every" value="1" min="1"></div>
+                            <div class="form-group hidden" id="sample-steps-group"><label>Sample Every N Steps</label><input type="number" id="cfg-sample-every-steps" value="100" min="1"></div>
+                        </div>
+                    </div>
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="flask-conical"></i></span> Test Generation</h3>
+                        <div class="form-group">
+                            <label>LoRA Checkpoint</label>
+                            <div style="display:flex;gap:8px;">
+                                <select id="gen-lora-select" style="flex:1"><option value="">Base Model (No LoRA)</option></select>
+                                <button id="btn-refresh-ckpts" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>LoRA Strength</label><input type="number" id="gen-lora-mul" value="1.0" step="0.1"></div>
+                        </div>
+                        <div style="display:flex;gap:12px">
+                            <label class="checkbox-label"><input type="checkbox" id="gen-flash-attn"> Flash Attn</label>
+                            <label class="checkbox-label"><input type="checkbox" id="gen-sage-attn"> Sage Attn</label>
+                            <label class="checkbox-label"><input type="checkbox" id="gen-keep-loaded"> Keep Loaded</label>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:14px;">
+                            <button id="btn-unload" class="btn btn-danger btn-sm"><i data-lucide="power-off"></i> Unload Model</button>
+                            <button id="btn-generate" class="btn btn-primary btn-glow" style="margin-left:auto;"><i data-lucide="play"></i> Generate</button>
+                        </div>
+                    </div>
+                    <div class="section-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h3><span class="icon"><i data-lucide="message-square"></i></span> Sample Prompts</h3>
+                            <button id="btn-add-prompt" class="btn btn-primary btn-sm"><i data-lucide="plus"></i> Add Prompt</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Negative Prompt (shared)</label>
+                            <textarea id="global-negative-prompt" rows="2">lowres, bad quality, worst quality, error, extra digits, low quality, score_1, score_2, score_3, artist name</textarea>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom: 12px;">
+                            <label class="checkbox-label" style="font-size: 0.85rem; margin:0;"><input type="checkbox" id="cfg-auto-prepend-tags" checked> Auto-Prepend:</label>
+                            <input type="text" id="cfg-prepend-text" value="masterpiece, best quality, score_7, safe" style="flex:1; font-size:0.85rem;" placeholder="Comma separated tags...">
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" class="prompt-settings">
+                            <div class="compact-input"><label>W</label><input type="number" id="global-w" value="832" step="64"></div>
+                            <div class="compact-input"><label>H</label><input type="number" id="global-h" value="1216" step="64"></div>
+                            <div class="compact-input"><label>Steps</label><input type="number" id="global-s" value="30"></div>
+                            <div class="compact-input"><label>Scale</label><input type="number" id="global-l" value="5.0" step="0.5"></div>
+                            <div class="compact-input" style="position:relative;"><label>Seed</label><input type="number" id="global-d" value="0" style="padding-right: 28px;"><button id="btn-random-seed" class="btn btn-ghost btn-xs" style="position:absolute; right:4px; top:18px; padding:0 4px; height:20px; min-height:20px;" title="Randomize Seed"><i data-lucide="dices" style="width:14px;height:14px;"></i></button></div>
+                        </div>
+                        <div id="prompts-list"></div>
+                        <div id="prompts-empty" class="text-dim" style="text-align:center;padding:20px;">No prompts yet. Click "+ Add Prompt" to add one.</div>
+                    </div>
+                </div>
+
+                <!-- ═══ Samples Tab ═══ -->
+                <div id="tab-samples" class="tab-pane">
+                    <div class="section-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h3><span class="icon"><i data-lucide="images"></i></span> Generated Samples</h3>
+                            <button id="btn-refresh-samples" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"></i> Refresh</button>
+                        </div>
+                        <div id="samples-grid" class="samples-grid"></div>
+                        <div id="samples-empty" class="text-dim" style="text-align:center;padding:30px;">
+                            <i data-lucide="image" style="width:48px;height:48px;opacity:0.2;margin-bottom:10px;"></i>
+                            <br>No samples yet. Run training or generate test images.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Console Tab ═══ -->
+                <div id="tab-console" class="tab-pane">
+                    <div class="console-container">
+                        <div class="console-header">
+                            <span style="font-size:0.82rem;font-weight:500;display:flex;align-items:center;gap:6px;">
+                                <i data-lucide="terminal" style="width:14px;height:14px;"></i> Training Log
+                            </span>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span id="ws-status" class="status-dot"></span>
+                                <button id="btn-clear-console" class="btn btn-ghost btn-xs"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> Clear</button>
+                            </div>
+                        </div>
+                        <div id="console-output" class="console-output">Waiting for training to start...</div>
+                    </div>
+                </div>
+
+                <!-- ═══ TensorBoard Tab ═══ -->
+                <div id="tab-tensorboard" class="tab-pane">
+                    <div class="section-card">
+                        <h3><span class="icon"><i data-lucide="activity"></i></span> TensorBoard</h3>
+                        <div style="display:flex;gap:8px;margin-bottom:16px;">
+                            <button id="btn-tb-launch" class="btn btn-primary btn-glow"><i data-lucide="play"></i> Launch TensorBoard</button>
+                            <button id="btn-tb-stop" class="btn btn-danger btn-sm hidden"><i data-lucide="square"></i> Stop</button>
+                            <button id="btn-tb-open" class="btn btn-ghost btn-sm hidden"><i data-lucide="external-link"></i> Open in Browser</button>
+                        </div>
+                        <div id="tb-frame-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="js/app.js"></script>
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+</body>
+</html>
