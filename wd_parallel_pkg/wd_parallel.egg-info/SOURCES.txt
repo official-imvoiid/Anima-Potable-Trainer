@@ -1,0 +1,14 @@
+setup.py
+wd_parallel/__init__.py
+wd_parallel/apply.py
+wd_parallel/backends.py
+wd_parallel/collectives.py
+wd_parallel/config.py
+wd_parallel/fsdp.py
+wd_parallel/initialize.py
+wd_parallel/layers.py
+wd_parallel.egg-info/PKG-INFO
+wd_parallel.egg-info/SOURCES.txt
+wd_parallel.egg-info/dependency_links.txt
+wd_parallel.egg-info/requires.txt
+wd_parallel.egg-info/top_level.txt

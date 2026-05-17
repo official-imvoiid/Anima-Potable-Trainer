@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: wd_parallel
+Version: 0.1.0
+Summary: Windows-native TP+SP training framework (no NCCL required)
+Requires-Python: >=3.9
+Requires-Dist: torch>=2.2.0
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

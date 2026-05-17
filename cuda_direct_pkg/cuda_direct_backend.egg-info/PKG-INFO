@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: cuda-direct-backend
+Version: 0.1.0
+Summary: CUDA Direct GPU-to-GPU ProcessGroup backend for PyTorch distributed on Windows
+Requires-Python: >=3.10
+Requires-Dist: torch>=2.0.0
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
