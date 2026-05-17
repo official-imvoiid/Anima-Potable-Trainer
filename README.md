@@ -60,10 +60,12 @@ To train an Anima LoRA successfully, you will need:
 ## 🚀 Installation & Usage
 
 1. Download and extract this repository to a folder (e.g. `C:\AnimaTrainer`).
-2. Place your Anima model files somewhere on disk:
-   - DiT weights (`anima-base-v1.0.safetensors`)
-   - Qwen3 text encoder (`qwen_3_06b_base.safetensors`)
-   - VAE (`qwen_image_vae.safetensors`)
+   - **Note:** If you ever move this folder to a different drive or location later, you must double-click the `SetEnv.bat` file once to update the paths!
+2. Double-click **`download_models.bat`** to automatically download the required base models.
+   - It will prompt for your Hugging Face token (optional) and place the following 3 files in the `models/` directory:
+     - `anima_baseV10.safetensors`
+     - `qwen_3_06b_base.safetensors`
+     - `qwen_image_vae.safetensors`
 3. Double-click **`setup.bat`** to install the isolated Python environment.
 4. Double-click **`training-ui\start_windows.bat`** to launch the Web UI.
 5. Open your browser to **http://localhost:3000**.
