@@ -1,0 +1,55 @@
+MIT License
+
+Copyright (c) 2026 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+THIRD-PARTY NOTICES
+
+This software includes code derived from or dependent on the following
+third-party projects, each governed by their own licenses:
+
+1. kohya-ss/sd-scripts (Apache License 2.0)
+   Source: https://github.com/kohya-ss/sd-scripts
+   Files:  library/, networks/, train_network.py, and related training scripts
+   The Apache 2.0 license text is available at:
+   https://www.apache.org/licenses/LICENSE-2.0
+
+2. Anima Model Weights (Non-Commercial Use Only)
+   The Anima diffusion model weights are NOT included in this repository.
+   They are licensed separately by their respective authors and are STRICTLY
+   for non-commercial, personal, research, or creative use only. 
+   You may NOT use the base model or any LoRAs trained on it for commercial 
+   products, paid services, or profit without explicit permission from the 
+   original creators. Refer to the Anima model card for the applicable license.
+
+3. PyTorch (BSD 3-Clause License)
+   https://github.com/pytorch/pytorch/blob/main/LICENSE
+
+4. Hugging Face Transformers & Diffusers (Apache License 2.0)
+   https://github.com/huggingface/transformers/blob/main/LICENSE
+   https://github.com/huggingface/diffusers/blob/main/LICENSE
+
+5. bitsandbytes (MIT License)
+   https://github.com/bitsandbytes-foundation/bitsandbytes/blob/main/LICENSE
+
+Your use of any bundled or downloaded model weights is subject to the license
+terms of those weights and is independent of this software license.
