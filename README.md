@@ -35,16 +35,23 @@ Instead of dealing with complex command lines, missing dependencies, and confusi
 
 ## 🖥️ Hardware Requirements
 
-To train an Anima LoRA successfully, you will need:
+To train an Anima model successfully, you will need:
 
 | Requirement | Specification |
 |---|---|
 | **OS** | Windows 10 / 11 (64-bit) |
 | **GPU** | NVIDIA GPU with CUDA 12.8 support |
-| **VRAM** | **8 GB minimum** (12 GB or more highly recommended for higher batch sizes or higher ranks) |
+| **VRAM (LoRA)** | **8 GB minimum** (12 GB+ recommended for higher batch sizes or higher ranks) |
+| **VRAM (Full Finetune)** | **24 GB minimum** (Full Checkpoint fine-tuning requires significantly more VRAM than LoRA) |
 | **RAM** | 16 GB system RAM minimum |
 | **Disk Space** | ~15 GB free for the isolated Python environment, PyTorch, and model weights |
 | **Node.js** | v18 or later to run the Web UI |
+
+---
+
+## 🛑 Important: Moving the Folder
+If you ever move or rename the `Anima-Potable-Trainer` folder to a different drive or location after installation, **you MUST double-click the `SetEnv.bat` file once**. 
+This will automatically fix all the internal environment paths to match the new location and prevent critical errors during training.
 
 ---
 
