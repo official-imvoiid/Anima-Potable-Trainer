@@ -295,10 +295,42 @@ function initEventListeners() {
     });
 
     // Generate Handlers
+    $("btn-refresh-ckpts").addEventListener("click", async () => {
+        if (!currentJob) return;
+        try {
+            const res = await api(`/api/jobs/${currentJob}/checkpoints`);
+            const select = $("gen-lora-select");
+            select.innerHTML = '<option value="">Base Model (No LoRA)</option>';
+            (res.checkpoints || []).forEach(ckpt => {
+                const opt = document.createElement("option");
+                opt.value = ckpt.path;
+                opt.textContent = ckpt.name;
+                select.appendChild(opt);
+            });
+            if (select.options.length > 1) select.selectedIndex = select.options.length - 1;
+            showToast("Checkpoints refreshed", "success");
+        } catch (e) { showToast("Could not load checkpoints", "error"); }
+    });
+
     $("btn-generate").addEventListener("click", async () => {
         if (!currentJob) return;
         try {
-            await api(`/api/jobs/${currentJob}/generate`, { method: 'POST', body: {} });
+            const loraPath   = $("gen-lora-select").value;
+            const loraMul    = parseFloat($("gen-lora-mul").value) || 1.0;
+            const flashAttn  = $("gen-flash-attn").checked;
+            const sageAttn   = $("gen-sage-attn").checked;
+            const keepLoaded = $("gen-keep-loaded").checked;
+
+            await api(`/api/jobs/${currentJob}/generate`, {
+                method: 'POST',
+                body: {
+                    network_weights: loraPath || undefined,
+                    network_mul:     loraMul,
+                    flash_attn:      flashAttn,
+                    sage_attn:       sageAttn,
+                    keep_loaded:     keepLoaded,
+                }
+            });
             showToast("Generation started", "success");
         } catch (e) { showToast(e.message, "error"); }
     });

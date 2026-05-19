@@ -1239,7 +1239,7 @@ app.get('/api/jobs/:name/checkpoints', (req, res) => {
     try {
         const jobPath = getJobPath(req.params.name);
         const outputDir = path.join(jobPath, 'output');
-        if (!fs.existsSync(outputDir)) return res.json([]);
+        if (!fs.existsSync(outputDir)) return res.json({ checkpoints: [] });
 
         const files = fs.readdirSync(outputDir)
             .filter(f => f.endsWith('.safetensors'))
@@ -1249,7 +1249,7 @@ app.get('/api/jobs/:name/checkpoints', (req, res) => {
             })
             .sort((a, b) => b.mtime - a.mtime);
 
-        res.json(files);
+        res.json({ checkpoints: files });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
