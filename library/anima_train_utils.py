@@ -588,11 +588,13 @@ def sample_images(
             accelerator.wait_for_everyone()
             return
         if args.sample_every_n_epochs is not None:
+            # epoch-end call: only fire at epoch boundaries, ignore step-level calls (epoch=None)
             if epoch is None or epoch % args.sample_every_n_epochs != 0:
                 accelerator.wait_for_everyone()
                 return
-        else:
-            if steps % args.sample_every_n_steps != 0 or epoch is not None:
+        elif args.sample_every_n_steps is not None:
+            # step-level call: only fire at step intervals, ignore epoch-end calls (epoch!=None)
+            if epoch is not None or steps % args.sample_every_n_steps != 0:
                 accelerator.wait_for_everyone()
                 return
 

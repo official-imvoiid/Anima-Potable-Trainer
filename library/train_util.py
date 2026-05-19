@@ -6501,11 +6501,12 @@ def sample_images_common(
         if args.sample_every_n_steps is None and args.sample_every_n_epochs is None:
             return
         if args.sample_every_n_epochs is not None:
-            # sample_every_n_steps は無視する
+            # epoch-end call: only fire at epoch boundaries, ignore step-level calls (epoch=None)
             if epoch is None or epoch % args.sample_every_n_epochs != 0:
                 return
-        else:
-            if steps % args.sample_every_n_steps != 0 or epoch is not None:  # steps is not divisible or end of epoch
+        elif args.sample_every_n_steps is not None:
+            # step-level call: only fire at step intervals, ignore epoch-end calls (epoch!=None)
+            if epoch is not None or steps % args.sample_every_n_steps != 0:
                 return
 
     logger.info("")
